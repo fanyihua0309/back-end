@@ -4,8 +4,10 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+// var indexRouter = require('./routes/index');
+// var usersRouter = require('./routes/users');
+// const catalogRouter = require('./routes/catalog');  // 导入 catalog 路由
+const signRouter = require('./routes/sign');
 
 var app = express();
 
@@ -19,8 +21,32 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//需要跨域的url
+let allowOrigin = [
+  "http://localhost:3000",
+];
+
+app.use((request, response, next) => {
+  let {origin} = request.headers;
+  if(allowOrigin.includes(origin)) {
+      response.setHeader("Access-Control-Allow-Origin", origin);
+      response.setHeader("Access-Control-Allow-Credentials", true);
+      response.setHeader("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With");
+      response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, HEAD, DELETE, OPTIONS");
+      // response.setHeader("X-Powered-By", "3.2.1");
+      // if(request.method.toUpperCase() == "OPTIONS") {
+      //     response.statusCode = 204;
+      //     response.end();
+      // }
+  }
+  next();
+});
+
+// app.use('/', indexRouter);
+// app.use('/users', usersRouter);
+// app.use('/catalog', catalogRouter);  // 将 catalog 路由添加进中间件链
+app.use('/sign', signRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
