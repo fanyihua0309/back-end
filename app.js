@@ -4,9 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-// var indexRouter = require('./routes/index');
-// var usersRouter = require('./routes/users');
-// const catalogRouter = require('./routes/catalog');  // 导入 catalog 路由
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+const catalogRouter = require('./routes/catalog');  // 导入 catalog 路由
 const signRouter = require('./routes/sign');
 
 var app = express();
@@ -42,9 +42,9 @@ app.use((request, response, next) => {
   next();
 });
 
-// app.use('/', indexRouter);
-// app.use('/users', usersRouter);
-// app.use('/catalog', catalogRouter);  // 将 catalog 路由添加进中间件链
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/catalog', catalogRouter);  // 将 catalog 路由添加进中间件链
 app.use('/sign', signRouter);
 
 

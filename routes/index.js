@@ -7,9 +7,9 @@ router.get('/', function(req, res, next) {
 });
 
 // GET 请求主页
-// router.get('/', (req, res) => {
-//   res.redirect('/catalog');
-// });
+router.get('/', (req, res) => {
+  res.redirect('/catalog');
+});
 
 
 module.exports = router;
