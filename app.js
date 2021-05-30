@@ -6,8 +6,9 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-const catalogRouter = require('./routes/catalog');  // 导入 catalog 路由
+// const catalogRouter = require('./routes/catalog');  // 导入 catalog 路由
 const signRouter = require('./routes/sign');
+const moviesRouter = require('./routes/movies');
 
 var app = express();
 
@@ -33,19 +34,20 @@ app.use((request, response, next) => {
       response.setHeader("Access-Control-Allow-Credentials", true);
       response.setHeader("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With");
       response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, HEAD, DELETE, OPTIONS");
-      // response.setHeader("X-Powered-By", "3.2.1");
-      // if(request.method.toUpperCase() == "OPTIONS") {
-      //     response.statusCode = 204;
-      //     response.end();
-      // }
+      response.setHeader("X-Powered-By", "3.2.1");
+      if(request.method.toUpperCase() == "OPTIONS") {
+          response.statusCode = 204;
+          response.end();
+      }
   }
   next();
 });
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/catalog', catalogRouter);  // 将 catalog 路由添加进中间件链
+// app.use('/catalog', catalogRouter);  // 将 catalog 路由添加进中间件链
 app.use('/sign', signRouter);
+app.use('/movies', moviesRouter);
 
 
 // catch 404 and forward to error handler
