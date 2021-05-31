@@ -7,6 +7,7 @@ const pool  = mysql.createPool({
   password: '',
   database: 'mydb',
   post: 3306,
+  // serverTimezone: 'Asia/Shanghai',
   multipleStatements: true,   // 允许执行多条 sql 语句
 });
 

@@ -33,7 +33,7 @@ app.use((request, response, next) => {
       response.setHeader("Access-Control-Allow-Origin", origin);
       response.setHeader("Access-Control-Allow-Credentials", true);
       response.setHeader("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With");
-      response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, HEAD, DELETE, OPTIONS");
+      response.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, HEAD, DELETE, OPTIONS");
       response.setHeader("X-Powered-By", "3.2.1");
       if(request.method.toUpperCase() == "OPTIONS") {
           response.statusCode = 204;
