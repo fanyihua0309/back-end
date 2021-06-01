@@ -6,7 +6,6 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-// const catalogRouter = require('./routes/catalog');  // 导入 catalog 路由
 const signRouter = require('./routes/sign');
 const moviesRouter = require('./routes/movies');
 
@@ -22,11 +21,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+
 //需要跨域的url
 let allowOrigin = [
   "http://localhost:3000",
 ];
 
+// 设置实现 CORS 
 app.use((request, response, next) => {
   let {origin} = request.headers;
   if(allowOrigin.includes(origin)) {
@@ -43,9 +44,9 @@ app.use((request, response, next) => {
   next();
 });
 
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-// app.use('/catalog', catalogRouter);  // 将 catalog 路由添加进中间件链
 app.use('/sign', signRouter);
 app.use('/movies', moviesRouter);
 

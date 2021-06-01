@@ -6,10 +6,4 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-// GET 请求主页
-// router.get('/', (req, res) => {
-//   res.redirect('/catalog');
-// });
-
-
 module.exports = router;
