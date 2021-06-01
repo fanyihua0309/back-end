@@ -14,7 +14,8 @@ router.post('/in', function(req, res, next) {
                WHERE mobile='${mobile}' AND password='${password}') checkuser`;
   pool.query(sql, function (error, results, fields) {
   if (error) {
-    throw error;
+    console.log(error);
+    res.json({"code": -1, "msg": "登录失败", "err": error});
   }
   const count = [results[0][0]['COUNT(*)'], results[1][0]['COUNT(*)']];
   if(count[0] === 0) {
@@ -37,15 +38,17 @@ router.post('/up', function(req, res, next) {
                VALUES('${nickname}', '${(mobile)}', '${password}')`;
   pool.query(sql, function (error, results, fields) {
     if (error) {
-      // throw error;
-      console.log("err: " + error);
-      if(error.code === 'ER_DUP_ENTRY')
-        res.json({"code": -1, "msg": "注册失败", "err": "该用户已存在!"});
+      console.log(error);
+      if(error.code === 'ER_DUP_ENTRY') {
+        res.json({"code": -1, "msg": "注册失败", "err": `手机号码为${mobile}的用户已存在！`});
+      }
       else {
         res.json({"code": -1, "msg": "注册失败"});
       }
     }
-    res.json({"code": 0, "msg": "注册成功"});
+    else {
+      res.json({"code": 0, "msg": "注册成功"});
+    }
   });
 })
 

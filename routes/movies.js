@@ -10,9 +10,10 @@ router.get('/', function(req, res, next) {
     if(error) {
       console.log(error);
       res.json({"code": -1, "msg": "获取电影信息失败", "err": error});
-      throw error;
     }
-    res.json({"code": 0, "msg": "获取电影信息成功", "data": results});
+    else {
+      res.json({"code": 0, "msg": "获取电影信息成功", "data": results});
+    }
   })
 })
 
@@ -25,17 +26,22 @@ router.post('/add', function(req, res, next) {
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
-      res.json({"code": -1, "msg": "新增电影信息失败", "err": error});
-      throw error;
+      if(error.code === 'ER_DUP_ENTRY') {
+        res.json({"code": -1, "msg": "新增电影信息失败", "err": `电影${name}已存在！`});
+      }
+      else {
+        res.json({"code": -1, "msg": "新增电影信息失败", "err": error});
+      }
     }
-    res.json({"code": 0, "msg": "新增电影信息成功", "data": "null"});
+    else {
+      res.json({"code": 0, "msg": "新增电影信息成功", "data": "null"});
+    }
   })
 })
 
 // 搜索电影信息 post 请求接口
 router.post('/search', function(req, res, next) {
   const params = JSON.parse(req.body.params);
-  console.log(params);
   let { name, date, area, director, starring, type } = params;
   // 用户并不是每个字段都键入值进行搜索，如果对应字段没有值设为空字符串
   name = name || '';
@@ -51,16 +57,16 @@ router.post('/search', function(req, res, next) {
     if(error) {
       console.log(error);
       res.json({"code": -1, "msg": "搜索电影信息失败", "err": error});
-      throw error;
     }
+    else {
       res.json({"code": 0, "msg": "搜索电影信息成功", "data": results});
+    }
   })
 })
 
 // 编辑电影信息 patch 请求接口
 router.patch('/edit', function(req, res, next) {
   const params = JSON.parse(req.body.params);
-  console.log(params);
   const { id, name, date, area, director, starring, type } = params;
   const sql = `UPDATE movies
                SET name='${name}', date='${date}', area='${area}', director='${director}', starring='${starring}', type='${type}'
@@ -69,25 +75,26 @@ router.patch('/edit', function(req, res, next) {
     if(error) {
       console.log(error);
       res.json({"code": -1, "msg": "编辑电影信息失败", "err": error});
-      throw error;
     }
-    res.json({"code": 0, "msg": "编辑电影信息成功", "data": "null"});
+    else {
+      res.json({"code": 0, "msg": "编辑电影信息成功", "data": "null"});
+    }
   })
 })
 
-// 删除指定 id 的电影信息 delete 请求接口
-router.delete('/delete/:id', function(req, res, next) {
-  const id = req.params.id;
+// 删除指定 id 集合的电影信息 delete 请求接口
+router.delete('/delete/:idList', function(req, res, next) {
+  const idList = req.params.idList;
   const sql = `DELETE FROM movies
-               WHERE id=${id}`;
+               WHERE id IN(${idList})`;
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
       res.json({"code": -1, "msg": "删除指定 id 的电影信息失败", "err": error});
-      throw error;
     }
-    console.log(results);
-    res.json({"code": 0, "msg": "删除指定 id 的电影信息成功", "data": "null"});
+    else {
+      res.json({"code": 0, "msg": "删除指定 id 的电影信息成功", "data": "null"});
+    }
   })
 })
 
