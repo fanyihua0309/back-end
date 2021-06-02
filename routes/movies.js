@@ -9,7 +9,7 @@ router.get('/', function(req, res, next) {
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
-      res.json({"code": -1, "msg": "获取电影信息失败", "err": error});
+      res.json({"code": -1, "msg": "获取电影信息失败", "err": "存在错误获取电影信息失败！"});
     }
     else {
       res.json({"code": 0, "msg": "获取电影信息成功", "data": results});
@@ -21,16 +21,31 @@ router.get('/', function(req, res, next) {
 router.post('/add', function(req, res, next) {
   const params = JSON.parse(req.body.params);
   const { name, date, area, director, starring, type } = params;
-  const sql = `INSERT INTO movies(name, date, area, director, starring, type)
+
+  // 执行2条 sql 语句
+  // 当存储电影信息的数据表不存在时新建数据表 movies
+  // 向 movies 中插入新增的电影信息，由于 movie_id 设置为自增长，无需手动设值
+  const sql = `CREATE TABLE
+               IF NOT EXISTS movies (
+                movie_id INT NOT NULL AUTO_INCREMENT,
+                name VARCHAR(128) NOT NULL UNIQUE,
+                date DATE,
+                area VARCHAR (128),
+                director VARCHAR (128),
+                starring VARCHAR (128),
+                type VARCHAR (128),
+                PRIMARY KEY (movie_id)
+               );
+               INSERT INTO movies(name, date, area, director, starring, type)
                VALUES('${name}', '${date}', '${area}', '${director}', '${starring}', '${type}')`;
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
       if(error.code === 'ER_DUP_ENTRY') {
-        res.json({"code": -1, "msg": "新增电影信息失败", "err": `电影${name}已存在！`});
+        res.json({"code": -1, "msg": "新增电影信息失败", "err": `电影 ${name} 已存在！`});
       }
       else {
-        res.json({"code": -1, "msg": "新增电影信息失败", "err": error});
+        res.json({"code": -1, "msg": "新增电影信息失败", "err": "存在错误新增电影信息失败！"});
       }
     }
     else {
@@ -56,7 +71,7 @@ router.post('/search', function(req, res, next) {
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
-      res.json({"code": -1, "msg": "搜索电影信息失败", "err": error});
+      res.json({"code": -1, "msg": "搜索电影信息失败", "err": "存在错误搜索电影信息失败！"});
     }
     else {
       res.json({"code": 0, "msg": "搜索电影信息成功", "data": results});
@@ -74,10 +89,10 @@ router.patch('/edit', function(req, res, next) {
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
-      res.json({"code": -1, "msg": "编辑电影信息失败", "err": error});
+      res.json({"code": -1, "msg": "编辑电影信息失败", "err": "存在错误编辑电影信息失败！"});
     }
     else {
-      res.json({"code": 0, "msg": "编辑电影信息成功", "data": "null"});
+      res.json({"code": 0, "msg": "编辑电影信息成功", "suc": "编辑电影信息成功", "data": "null"});
     }
   })
 })
@@ -90,10 +105,10 @@ router.delete('/delete/:idList', function(req, res, next) {
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
-      res.json({"code": -1, "msg": "删除指定 id 的电影信息失败", "err": error});
+      res.json({"code": -1, "msg": `删除 id 为 ${idList} 的电影信息失败`, "err": "存在错误删除电影信息失败！"});
     }
     else {
-      res.json({"code": 0, "msg": "删除指定 id 的电影信息成功", "data": "null"});
+      res.json({"code": 0, "msg": `删除 id 为 ${idList} 的电影信息成功`, "suc": "删除电影信息成功", "data": "null"});
     }
   })
 })
