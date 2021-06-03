@@ -5,7 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var userRouter = require('./routes/user');
+const adminRouter = require('./routes/admin');
 const signRouter = require('./routes/sign');
 const moviesRouter = require('./routes/movies');
 
@@ -46,7 +47,8 @@ app.use((request, response, next) => {
 
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/user', userRouter);
+app.use('/admin', adminRouter);
 app.use('/sign', signRouter);
 app.use('/movies', moviesRouter);
 
