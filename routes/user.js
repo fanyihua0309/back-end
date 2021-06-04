@@ -40,36 +40,68 @@ router.post('/like', function(req, res, next) {
   })
 })
 
-// 用户标记看过/取消看过的 post 请求接口
-router.post('/see', function(req, res, next) {
-  const { user_id, movie_id, see } = req.body;
-  let sql_part;
-  if(see) {
-    sql_part = `DELETE FROM usersee
-                WHERE user_id=${user_id} AND movie_id=${movie_id}`;
-  }
-  else {
-    sql_part = `INSERT INTO usersee(user_id, movie_id)
-                VALUES(${user_id}, ${movie_id})`;
-  }
+// 用户更新电影评分的 patch 请求接口
+router.patch('/see/rate', function(req, res, next) {
+  const { user_id, movie_id, rate } = req.body;
 
-  let sql = `CREATE TABLE 
-              IF NOT EXISTS usersee (
-              id INT NOT NULL AUTO_INCREMENT,
-              user_id INT NOT NULL,
-              movie_id INT NOT NULL,
-              PRIMARY KEY(id)
-              );` + sql_part;
+  const sql = `UPDATE usersee
+               SET rate=${rate}
+               WHERE user_id=${user_id} AND movie_id=${movie_id}`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
-      res.json({"code": -1, "msg": `标记${see ? "取消看过" : "看过"}失败`, "err": `标记${like ? "取消看过" : "看过"}失败`});
+      res.json({"code": -1, "msg": "编辑评分失败", "err": "编辑评分失败"});
     }
     else {
-      res.json({"code": 0, "msg": `标记${see ? "取消看过" : "看过"}成功`});
+      res.json({"code": 0, "msg": "编辑评分成功"});
     }
   })
 })
+
+// 用户标记看过并给电影评分的 post 请求接口
+router.post('/see', function(req, res, next) {
+  const { user_id, movie_id, see, rate } = req.body;
+
+  const sqlCreateTable = `CREATE TABLE 
+                          IF NOT EXISTS usersee (
+                          id INT NOT NULL AUTO_INCREMENT,
+                          user_id INT NOT NULL,
+                          movie_id INT NOT NULL,
+                          rate SMALLINT,
+                          PRIMARY KEY(id)
+                          );`;
+  const sqlInsert = `INSERT INTO usersee(user_id, movie_id, rate)
+                     VALUES(${user_id}, ${movie_id}, ${rate});`;
+  const sql = sqlCreateTable + sqlInsert;
+
+  pool.query(sql, function(error, results, fields) {
+    if(error) {
+      console.log(error);
+      res.json({"code": -1, "msg": "标记看过失败", "err": "标记看过失败"});
+    }
+    else {
+      res.json({"code": 0, "msg": "标记看过成功"});
+    }
+  })
+})
+
+// 获取指定 id 的用户信息 get 请求接口
+router.get('/info/:user_id', function(req, res, next) {
+  const user_id = req.params.user_id;
+  console.log(user_id);
+  const sql = `SELECT * FROM users
+               WHERE id=${user_id}`;
+  pool.query(sql, function(error, results, fields) {
+    if(error) {
+      console.log(error);
+      res.json({"code": -1, "msg": "获取用户信息失败", "err": "存在错误获取用户信息失败！"});
+    }
+    else {
+      res.json({"code": 0, "msg": "获取用户信息成功", "data": results[0]});
+    }
+  })
+}) 
 
 
 module.exports = router;

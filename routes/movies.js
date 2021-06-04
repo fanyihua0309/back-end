@@ -9,7 +9,7 @@ router.get('/:user_id', function(req, res, next) {
   const sql = `SELECT * FROM movies;
                SELECT movie_id FROM userlike 
                WHERE user_id=${user_id};
-               SELECT movie_id FROM usersee
+               SELECT movie_id, rate FROM usersee
                WHERE user_id=${user_id}`;
   pool.query(sql, function(error, results, fields) {
     let data = results[0];
@@ -31,9 +31,11 @@ router.get('/:user_id', function(req, res, next) {
     // 同理为电影的 see 属性设置值为 true 或 false
     data = data.map((cur) => {
       cur.see = false;
+      cur.rate = null;
       for(let i = 0; i < seeList.length; i++) {
         if(cur.id === seeList[i].movie_id) {
           cur.see = true;
+          cur.rate = seeList[i].rate;
         }
       }
       return cur;
