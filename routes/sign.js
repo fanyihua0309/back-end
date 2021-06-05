@@ -5,7 +5,7 @@ const pool = require('../database/pool');
 
 // 用户注册功能 post 请求接口
 router.post('/up', function(req, res, next) {
-  const { nickname, mobile, password } = req.body;
+  const { nickname, mobile, email, password } = req.body;
 
   // 执行2条 sql 语句
   // 当存储用户信息的数据表不存在时新建数据表 users
@@ -19,8 +19,8 @@ router.post('/up', function(req, res, next) {
                 PRIMARY KEY (id)
                );
                INSERT 
-               INTO users(nickname, mobile, password)
-               VALUES('${nickname}', '${(mobile)}', '${password}')`;
+               INTO users(nickname, mobile, email, password)
+               VALUES('${nickname}', '${mobile}', '${email}', '${password}')`;
   pool.query(sql, function (error, results, fields) {
     if (error) {
       console.log(error);
