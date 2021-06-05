@@ -177,7 +177,45 @@ router.get('/info/:user_id', function(req, res, next) {
   })
 }) 
 
+// 更新指定 id 的用户信息 patch 请求接口
+router.patch('/info', function(req, res, next) {
+  const {id, nickname, mobile, email} = req.body;
+  const sql = `UPDATE users
+               SET nickname='${nickname}', mobile='${mobile}', email='${email}'
+               WHERE id=${id}`;
+  pool.query(sql, function(error, results, fields) {
+    if(error) {
+      console.log(error);
+      res.json({"code": -1, "msg": "更新用户信息失败", "err": "存在错误更新用户信息失败！"});
+    }
+    else {
+      res.json({"code": 0, "msg": "更新用户信息成功"});
+    }
+  })
+}) 
 
-
+// 更新指定 id 的用户登录密码 patch 请求接口
+router.patch('/password', function(req, res, next) {
+  const {id, password, newPassword } = req.body;
+  const sql = `SELECT * FROM users
+               WHERE id=${id} AND password='${password}';
+               UPDATE users
+               SET password=${newPassword}
+               WHERE id=${id} AND password='${password}';`;
+  pool.query(sql, function(error, results, fields) {
+    if(error) {
+      console.log(error);
+      res.json({"code": -1, "msg": "修改密码失败", "err": "存在错误更新用户信息失败！"});
+    }
+    else {
+      if(results[0].length === 0) {
+        res.json({"code": -1, "msg": "修改密码失败", "err": "原密码错误！无法修改密码！"});
+      }
+      else {
+        res.json({"code": 0, "msg": "修改密码成功"});
+      }
+    }
+  })
+}) 
 
 module.exports = router;
