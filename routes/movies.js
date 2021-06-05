@@ -7,14 +7,24 @@ const pool = require('../database/pool');
 router.get('/:user_id', function(req, res, next) {
   const user_id = req.params.user_id;
   const sql = `SELECT * FROM movies;
+
                SELECT movie_id FROM userlike 
                WHERE user_id=${user_id};
+
                SELECT movie_id, rate FROM usersee
-               WHERE user_id=${user_id}`;
+               WHERE user_id=${user_id};
+
+               SELECT movie_id, COUNT(movie_id) FROM userlike
+               GROUP BY movie_id;
+               
+               SELECT movie_id, AVG(rate), COUNT(movie_id) FROM usersee
+               GROUP BY movie_id`;
   pool.query(sql, function(error, results, fields) {
     let data = results[0];
     const likeList = results[1];
     const seeList = results[2];
+    const likeTotal = results[3];
+    const seeTotal = results[4];
 
     // 比对当前电影的 id 是否与用户标记喜欢电影的 id 相同
     // 为电影的 like 属性设置值为 true 或 false
@@ -36,6 +46,28 @@ router.get('/:user_id', function(req, res, next) {
         if(cur.id === seeList[i].movie_id) {
           cur.see = true;
           cur.rate = seeList[i].rate;
+        }
+      }
+      return cur;
+    })
+
+    data = data.map((cur) => {
+      cur.likeTotal = 0;
+      for(let i = 0; i < likeTotal.length; i++) {
+        if(cur.id === likeTotal[i].movie_id) {
+          cur.likeTotal = likeTotal[i]['COUNT(movie_id)'];
+        }
+      }
+      return cur;
+    })
+
+    data = data.map((cur) => {
+      cur.seeTotal = 0;
+      cur.rateAvg = 0;
+      for(let i = 0; i < seeTotal.length; i++) {
+        if(cur.id === seeTotal[i].movie_id) {
+          cur.seeTotal = seeTotal[i]['COUNT(movie_id)'];
+          cur.rateAvg = seeTotal[i]['AVG(rate)'];
         }
       }
       return cur;
