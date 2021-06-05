@@ -59,6 +59,59 @@ router.get('/:user_id', function(req, res, next) {
   })
 })
 
+// 获取所有电影信息并按指定的字段升序或降序排序 post 请求接口
+router.post('/sort', function(req, res, next) {
+  const { user_id, orderName, type } = req.body;
+  const sql = `
+              SELECT id, name, date, area, director, starring, type, likeTotal, seeTotal, rateAvg FROM movies,movieslike, moviessee
+              WHERE movies.id = movieslike.movie_id AND movies.id = moviessee.movie_id
+              ORDER BY ${orderName} ${type};
+              
+              SELECT movie_id FROM userlike 
+              WHERE user_id=${user_id};
+
+              SELECT movie_id, rate FROM usersee
+              WHERE user_id=${user_id};`;
+  pool.query(sql, function(error, results, fields) {
+    let data = results[0];
+    const likeList = results[1];
+    const seeList = results[2];
+
+     // 比对当前电影的 id 是否与用户标记喜欢电影的 id 相同
+    // 为电影的 like 属性设置值为 true 或 false
+    data = data.map((cur) => {
+      cur.like = false;
+      for(let i = 0; i < likeList.length; i++) {
+        if(cur.id === likeList[i].movie_id) {
+          cur.like = true;
+        }
+      }
+      return cur;
+    })
+
+    // 同理为电影的 see 属性设置值为 true 或 false
+    data = data.map((cur) => {
+      cur.see = false;
+      cur.rate = null;
+      for(let i = 0; i < seeList.length; i++) {
+        if(cur.id === seeList[i].movie_id) {
+          cur.see = true;
+          cur.rate = seeList[i].rate;
+        }
+      }
+      return cur;
+    })
+
+    if(error) {
+      console.log(error);
+      res.json({"code": -1, "msg": "获取电影信息失败", "err": "存在错误获取电影信息失败！"});
+    }
+    else {
+      res.json({"code": 0, "msg": "获取电影信息成功", "data": data});
+    }
+  })
+})
+
 // 新增电影信息 post 请求接口
 router.post('/add', function(req, res, next) {
   const params = JSON.parse(req.body.params);

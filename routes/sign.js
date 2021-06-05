@@ -57,7 +57,7 @@ router.post('/in', function(req, res, next) {
         res.json({"code": -1, "msg": "登录失败", "err": "用户名或密码错误!"});
       }
       else {
-        res.json({"code": 0, "msg": "登录成功", "data": {user_id: results[1][0].id}});
+        res.json({"code": 0, "msg": "登录成功", "data": {user_id: results[1][0].id, user_nickname: results[1][0].nickname, user_mobile: results[1][0].mobile, user_email: results[1][0].email}});
       }
     }
 })
