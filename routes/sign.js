@@ -15,6 +15,7 @@ router.post('/up', function(req, res, next) {
                 id INT NOT NULL AUTO_INCREMENT,
                 nickname VARCHAR (32) NOT NULL,
                 mobile VARCHAR (11) NOT NULL UNIQUE,
+                email VARCHAR(32) NOT NULL,
                 password VARCHAR (32) NOT NULL,
                 PRIMARY KEY (id)
                );

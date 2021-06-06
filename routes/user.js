@@ -73,7 +73,7 @@ router.post('/see', function(req, res, next) {
                           id INT NOT NULL AUTO_INCREMENT,
                           user_id INT NOT NULL,
                           movie_id INT NOT NULL,
-                          rate SMALLINT,
+                          rate SMALLINT NOT NULL,
                           PRIMARY KEY(id)
                           );`;
   const sqlInsert = `INSERT INTO usersee(user_id, movie_id, rate, create_time)
@@ -96,30 +96,32 @@ router.get('/mark/like/:user_id', function(req, res, next) {
   const user_id = req.params.user_id;
   
   const sql = `SELECT movie_id, create_time FROM userlike
-               WHERE user_id=${user_id};
+               WHERE user_id=${user_id}
+               ORDER BY create_time DESC;
 
                SELECT * FROM movies
                WHERE id IN (
                SELECT movie_id FROM userlike
-               WHERE user_id=${user_id})`;
+               WHERE user_id=${user_id}
+               ORDER BY create_time DESC);`;
 
   pool.query(sql, function(error, results, fields) {
-    let data = results[0];
-    const movies = results[1];
-    for(let i = 0; i < data.length; i++) {
-      data[i].name = movies[i].name;
-      data[i].date = movies[i].date;
-      data[i].area = movies[i].area;
-      data[i].director = movies[i].director;
-      data[i].starring = movies[i].starring;
-      data[i].type = movies[i].type;
-    }
 
     if(error) {
       console.log(error);
       res.json({"code": -1, "msg": "获取用户标记喜欢记录失败", "err": "存在错误获取用户标记喜欢记录失败！"});
     }
     else {
+      let data = results[0];
+      const movies = results[1];
+      for(let i = 0; i < data.length; i++) {
+        data[i].name = movies[i].name;
+        data[i].date = movies[i].date;
+        data[i].area = movies[i].area;
+        data[i].director = movies[i].director;
+        data[i].starring = movies[i].starring;
+        data[i].type = movies[i].type;
+      }
       res.json({"code": 0, "msg": "获取用户标记喜欢记录成功", "data": data});
     }
   })
@@ -130,12 +132,14 @@ router.get('/mark/see/:user_id', function(req, res, next) {
   const user_id = req.params.user_id;
   
   const sql = `SELECT movie_id, rate, create_time FROM usersee
-               WHERE user_id=${user_id};
+               WHERE user_id=${user_id}
+               ORDER BY create_time DESC;
 
                SELECT * FROM movies
                WHERE id IN (
                SELECT movie_id FROM usersee
-               WHERE user_id=${user_id})`;
+               WHERE user_id=${user_id}
+               ORDER BY create_time DESC)`;
 
   pool.query(sql, function(error, results, fields) {
     let data = results[0];
