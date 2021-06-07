@@ -1,3 +1,5 @@
+// 定义注册登录部分路由模块
+
 const express = require('express');
 const router = express.Router();
 const pool = require('../database/pool');
@@ -65,7 +67,7 @@ router.post('/in', function(req, res, next) {
 })
 
 // 管理员登录功能 post 请求接口
-router.post('/admin', function(req, res, next) {
+router.post('/in/admin', function(req, res, next) {
   const { mobile, password } = req.body;
   const sql = `SELECT * FROM admin
                WHERE mobile='${mobile}';

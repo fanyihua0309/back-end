@@ -4,9 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var userRouter = require('./routes/user');
-const adminRouter = require('./routes/admin');
+const userRouter = require('./routes/user');
 const signRouter = require('./routes/sign');
 const moviesRouter = require('./routes/movies');
 
@@ -23,32 +21,24 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-//需要跨域的url
-let allowOrigin = [
-  "http://localhost:3000",
-];
-
 // 设置实现 CORS 
-app.use((request, response, next) => {
-  let {origin} = request.headers;
+app.use((req, res, next) => {
+  // 设置允许跨源访问的 URL
+  const allowOrigin = [
+    "http://localhost:3000",
+  ];
+  let { origin } = req.headers;
   if(allowOrigin.includes(origin)) {
-      response.setHeader("Access-Control-Allow-Origin", origin);
-      response.setHeader("Access-Control-Allow-Credentials", true);
-      response.setHeader("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With");
-      response.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, HEAD, DELETE, OPTIONS");
-      response.setHeader("X-Powered-By", "3.2.1");
-      if(request.method.toUpperCase() == "OPTIONS") {
-          response.statusCode = 204;
-          response.end();
-      }
+    res.setHeader("Access-Control-Allow-Credentials", true);
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Content-Length, Authorization, Accept, X-Requested-With");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, HEAD, DELETE, OPTIONS");
   }
   next();
 });
 
 
-app.use('/', indexRouter);
 app.use('/user', userRouter);
-app.use('/admin', adminRouter);
 app.use('/sign', signRouter);
 app.use('/movies', moviesRouter);
 
