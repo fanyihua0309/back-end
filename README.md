@@ -6,7 +6,7 @@
 
 功能概述：用户角色分为普通用户和管理员，用户登录成功后进入系统，管理员与普通用户看到的页面不同。管理员可以对电影信息进行操作，用户不可对电影信息操作，可以对电影进行标记喜欢或看过并打分。具体功能点见功能说明部分。
 
-前后端分离，提交于不同的代码仓库
+前后端分离，前端启动在3000端口，后端启动在4000端口，提交于不同的代码仓库
 
 前端项目地址：https://github.com/fanyihua0309/front-end.git
 
@@ -40,112 +40,21 @@
 
 前后端需要先安装 package.json 文件中写明的项目依赖，后端需要在本地安装 MySQL ，在后端 database/pool.js 中配置自己的user, password, database, port等信息。
 
-#### 2.事先定义好基本表和视图
+#### 2.启动后端
+
+在Visual Studio Code 编译器终端键入以下两个命令，首先执行 DDL.js 完成项目所需的基本表和视图的定义，执行完毕可以看到 `Data definition is done.` 的输出，然后启动服务器
 
 ```
-一、基本表
-（1）创建管理员身份信息表
-CREATE TABLE
-IF NOT EXISTS admin (
-id INT NOT NULL AUTO_INCREMENT,
-mobile VARCHAR (11) NOT NULL UNIQUE,
-password VARCHAR (32) NOT NULL,
-PRIMARY KEY (id)
-);
-
-（2）创建用户身份信息表
-CREATE TABLE
-IF NOT EXISTS users (
-id INT NOT NULL AUTO_INCREMENT,
-nickname VARCHAR (32) NOT NULL,
-mobile VARCHAR (11) NOT NULL UNIQUE,
-email VARIANCE(32) NOT NULL,
-password VARCHAR (32) NOT NULL,
-PRIMARY KEY (id)
-);
-
-（3）创建电影基本信息表
-CREATE TABLE
-IF NOT EXISTS movies (
-id INT NOT NULL AUTO_INCREMENT,
-name VARCHAR (128) NOT NULL UNIQUE,
-date DATE,
-area VARCHAR (128),
-director VARCHAR (128),
-starring VARCHAR (128),
-type VARCHAR (128),
-PRIMARY KEY (id)
-);
-
-（4）创建用户标记喜欢记录表
-CREATE TABLE 
-IF NOT EXISTS userlike (
-id INT NOT NULL AUTO_INCREMENT,
-user_id INT NOT NULL,
-movie_id INT NOT NULL,
-create_time DATETIME NOT NULL,
-PRIMARY KEY(id),
-
-FOREIGN KEY(user_id) REFERENCES users(id)
-ON UPDATE CASCADE
-ON DELETE CASCADE,
-
-FOREIGN KEY(movie_id) REFERENCES movies(id)
-ON UPDATE CASCADE
-ON DELETE CASCADE
-);
-
-（5）创建用户标记看过/评分记录表
-CREATE TABLE 
-IF NOT EXISTS usersee (
-id INT NOT NULL AUTO_INCREMENT,
-user_id INT NOT NULL,
-movie_id INT NOT NULL,
-rate SMALLINT,
-create_time DATETIME NOT NULL,
-PRIMARY KEY(id),
-
-FOREIGN KEY(user_id) REFERENCES users(id)
-ON UPDATE CASCADE
-ON DELETE CASCADE,
-
-FOREIGN KEY(movie_id) REFERENCES movies(id)
-ON UPDATE CASCADE
-ON DELETE CASCADE
-);
-
-二、视图
-（1）movieslike
-通过左外连接表movies和表userlike统计每部电影标记喜欢的总人数
-CREATE VIEW movieslike
-AS
-SELECT movies.id AS movie_id, COUNT(movie_id) AS likeTotal
-FROM movies LEFT OUTER JOIN userlike ON (movies.id=userlike.movie_id)
-GROUP BY (movies.id)
-
-（2）moviessee
-通过左外连接表movies和表usersee统计每部电影标记看过的总人数及评分平均分
-CREATE VIEW moviessee
-AS
-SELECT movies.id AS movie_id, COUNT(movie_id) AS seeTotal, AVG(rate) AS rateAvg
-FROM movies LEFT OUTER JOIN usersee ON (movies.id=usersee.movie_id)
-GROUP BY (movies.id)
+node DDL.js
+npm run devstart
 ```
 
-#### 3.终端运行
+#### 3.启动前端
 
-使用Visual Studio Code 编译器，需要拆分两个终端，在终端分别键入命令启动前后端：
-
-前端
+在Visual Studio Code 编译器中拆分终端，键入命令，启动前端
 
 ```
 npm start
-```
-
-后端
-
-```
-npm run devstart
 ```
 
 访问 http://localhost:3000/ 即可看到前端应用界面

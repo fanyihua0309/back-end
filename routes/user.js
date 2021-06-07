@@ -10,11 +10,10 @@ const moment = require('moment');
 router.get('/:user_id', function(req, res, next) {
   const user_id = req.params.user_id;
 
-  // 第 1 条 sql 语句是连接已创建好的视图 movieslike, moviessee 与 movies, 从中查询出电影基本信息、看过人数、评分平均分、喜欢人数
+  // 第 1 条 sql 语句是从视图 moviesall 中查询电影相关的所有信息
   // 第 2、3 条 sql 语句是查询当前用户是否标记看过/喜欢/评分
   const sql = `
-               SELECT id, name, date, area, director, starring, type, likeTotal, seeTotal, rateAvg FROM movies,movieslike, moviessee
-               WHERE movies.id = movieslike.movie_id AND movies.id = moviessee.movie_id;
+               SELECT * FROM moviesall
 
                SELECT movie_id FROM userlike 
                WHERE user_id=${user_id};
@@ -63,7 +62,6 @@ router.get('/:user_id', function(req, res, next) {
 
 // 搜索电影信息 post 请求接口
 router.post('/search', function(req, res, next) {
-  // const params = JSON.parse(req.body.params);
   const { user_id } = req.body;
   let { name, date, area, director, starring, type } = req.body.movie;
   // 用户并不是每个字段都键入值进行搜索，如果对应字段没有值设为空字符串
@@ -82,6 +80,7 @@ router.post('/search', function(req, res, next) {
 
                SELECT movie_id, rate FROM usersee
                WHERE user_id=${user_id};`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -134,6 +133,7 @@ router.post('/sort', function(req, res, next) {
 
               SELECT movie_id, rate FROM usersee
               WHERE user_id=${user_id};`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -203,7 +203,6 @@ router.post('/like', function(req, res, next) {
 router.post('/see', function(req, res, next) {
   const { user_id, movie_id, see, rate } = req.body;
   const createTime = moment().format("YYYY-MM-DD HH:mm:ss"); //当前时间
-
   const sql = `INSERT INTO usersee(user_id, movie_id, rate, create_time)
                      VALUES(${user_id}, ${movie_id}, ${rate}, '${createTime}');`;
 
@@ -221,7 +220,6 @@ router.post('/see', function(req, res, next) {
 // 用户更新电影评分的 patch 请求接口
 router.patch('/see/rate', function(req, res, next) {
   const { user_id, movie_id, rate } = req.body;
-
   const sql = `UPDATE usersee
                SET rate=${rate}
                WHERE user_id=${user_id} AND movie_id=${movie_id}`;
@@ -240,7 +238,6 @@ router.patch('/see/rate', function(req, res, next) {
 // 获取指定 id 的用户标记电影喜欢历史记录 get 请求接口
 router.get('/mark/like/:user_id', function(req, res, next) {
   const user_id = req.params.user_id;
-  
   const sql = `SELECT movie_id, create_time FROM userlike
                WHERE user_id=${user_id}
                ORDER BY create_time DESC;
@@ -252,7 +249,6 @@ router.get('/mark/like/:user_id', function(req, res, next) {
                ORDER BY create_time DESC);`;
 
   pool.query(sql, function(error, results, fields) {
-
     if(error) {
       console.log(error);
       res.json({"code": -1, "msg": "获取用户标记喜欢记录失败", "err": "存在错误获取用户标记喜欢记录失败！"});
@@ -276,7 +272,6 @@ router.get('/mark/like/:user_id', function(req, res, next) {
 // 获取指定 id 的用户标记电影看过历史记录 get 请求接口
 router.get('/mark/see/:user_id', function(req, res, next) {
   const user_id = req.params.user_id;
-  
   const sql = `SELECT movie_id, rate, create_time FROM usersee
                WHERE user_id=${user_id}
                ORDER BY create_time DESC;
@@ -313,6 +308,7 @@ router.get('/info/:user_id', function(req, res, next) {
   const user_id = req.params.user_id;
   const sql = `SELECT * FROM users
                WHERE id=${user_id}`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -330,6 +326,7 @@ router.patch('/info', function(req, res, next) {
   const sql = `UPDATE users
                SET nickname='${nickname}', mobile='${mobile}', email='${email}'
                WHERE id=${id}`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -349,6 +346,7 @@ router.patch('/info/password', function(req, res, next) {
                UPDATE users
                SET password=${newPassword}
                WHERE id=${id} AND password='${password}';`;
+               
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);

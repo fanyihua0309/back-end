@@ -7,12 +7,7 @@ const pool = require('../database/pool');
 
 // 获取所有电影信息 get 请求接口
 router.get('/', function(req, res, next) {
-  // 执行2条 sql 语句
-  // 当存储电影信息的数据表不存在时新建数据表 movies
-  // 向 movies 中插入新增的电影信息，由于 id 设置为自增长，无需手动设值
-  const sql = `
-              SELECT id, name, date, area, director, starring, type, likeTotal, seeTotal, rateAvg FROM movies,movieslike, moviessee
-              WHERE movies.id = movieslike.movie_id AND movies.id = moviessee.movie_id`;
+  const sql = `SELECT * FROM moviesall`;
 
   pool.query(sql, function(error, results, fields) {
     if(error) {
@@ -28,9 +23,9 @@ router.get('/', function(req, res, next) {
 // 新增电影信息 post 请求接口
 router.post('/add', function(req, res, next) {
   const { name, date, area, director, starring, type } = req.body.movie;
-
   const sql = `INSERT INTO movies(name, date, area, director, starring, type)
                VALUES('${name}', '${date}', '${area}', '${director}', '${starring}', '${type}')`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -52,6 +47,7 @@ router.delete('/delete/:idList', function(req, res, next) {
   const idList = req.params.idList;
   const sql = `DELETE FROM movies
                WHERE id IN(${idList})`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -69,6 +65,7 @@ router.patch('/edit', function(req, res, next) {
   const sql = `UPDATE movies
                SET name='${name}', date='${date}', area='${area}', director='${director}', starring='${starring}', type='${type}'
                WHERE id=${id}`
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -93,6 +90,7 @@ router.post('/search', function(req, res, next) {
   const sql = `SELECT * FROM movies
                WHERE name LIKE '%${name}%' AND date LIKE '%${date}%' AND area LIKE '%${area}%'
                AND director LIKE '%${director}%' AND starring LIKE '%${starring}%' AND type LIKE '%${type}%'`;
+
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);
@@ -111,6 +109,7 @@ router.post('/sort', function(req, res, next) {
               SELECT id, name, date, area, director, starring, type, likeTotal, seeTotal, rateAvg FROM movies,movieslike, moviessee
               WHERE movies.id = movieslike.movie_id AND movies.id = moviessee.movie_id
               ORDER BY ${orderName} ${type}`;
+              
   pool.query(sql, function(error, results, fields) {
     if(error) {
       console.log(error);

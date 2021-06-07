@@ -8,22 +8,11 @@ const pool = require('../database/pool');
 // 用户注册功能 post 请求接口
 router.post('/up', function(req, res, next) {
   const { nickname, mobile, email, password } = req.body;
-
-  // 执行2条 sql 语句
-  // 当存储用户信息的数据表不存在时新建数据表 users
-  // 向 users 中插入新注册的用户信息，由于 id 设置为自增长，无需手动设值
-  const sql = `CREATE TABLE
-               IF NOT EXISTS users (
-                id INT NOT NULL AUTO_INCREMENT,
-                nickname VARCHAR (32) NOT NULL,
-                mobile VARCHAR (11) NOT NULL UNIQUE,
-                email VARCHAR(32) NOT NULL,
-                password VARCHAR (32) NOT NULL,
-                PRIMARY KEY (id)
-               );
+  const sql = `
                INSERT 
                INTO users(nickname, mobile, email, password)
                VALUES('${nickname}', '${mobile}', '${email}', '${password}')`;
+
   pool.query(sql, function (error, results, fields) {
     if (error) {
       console.log(error);
@@ -47,6 +36,7 @@ router.post('/in', function(req, res, next) {
                WHERE mobile='${mobile}';
                SELECT * FROM users
                WHERE mobile='${mobile}' AND password='${password}'`;
+
   pool.query(sql, function (error, results, fields) {
     if (error) {
       console.log(error);
@@ -73,6 +63,7 @@ router.post('/in/admin', function(req, res, next) {
                WHERE mobile='${mobile}';
                SELECT * FROM admin
                WHERE mobile='${mobile}' AND password='${password}'`;
+               
   pool.query(sql, function (error, results, fields) {
     if (error) {
       console.log(error);
