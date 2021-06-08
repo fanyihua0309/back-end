@@ -1,8 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const accessTokenSecret = 'mytestaccesstokensecret';
-const refreshTokenSecret = 'yourrefreshtokensecrethere';
-const refreshTokens = [];
+// 生成随机字符串作为 accessTokenSecret 的值
+const accessTokenSecret = Math.random().toString(36).substr(2);
 
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -25,5 +24,3 @@ const authenticateJWT = (req, res, next) => {
 
 module.exports = authenticateJWT;
 module.exports.accessTokenSecret = accessTokenSecret;
-module.exports.refreshTokenSecret = refreshTokenSecret;
-module.exports.refreshTokens = refreshTokens;

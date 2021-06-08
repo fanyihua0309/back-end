@@ -5,9 +5,6 @@ const router = express.Router();
 const pool = require('../database/pool');
 const jwt = require('jsonwebtoken');
 const auth = require('../authenticateJWT');
-const accessTokenSecret = auth.accessTokenSecret;
-const refreshTokenSecret = auth.refreshTokenSecret;
-const refreshTokens = auth.refreshTokens;
 
 
 // 用户注册功能 post 请求接口
@@ -39,8 +36,8 @@ router.post('/in', function(req, res, next) {
   const { mobile, password, role } = req.body;
   const tableName = role === 'admin' ? 'admin' : 'users';
 
+  const accessTokenSecret = auth.accessTokenSecret;
   const accessToken = jwt.sign({ username: mobile, role: role }, accessTokenSecret);
-  console.log(accessToken);
 
   const sql = `SELECT * FROM ${tableName}
                WHERE mobile='${mobile}';
@@ -62,11 +59,10 @@ router.post('/in', function(req, res, next) {
       else {
         let data;
         if(role === 'user') {
-          data = {user_id: results[1][0].id, user_nickname: results[1][0].nickname, accessToken};
-          console.log(results[1][0]);
+          data = {user_id: results[1][0].id, user_nickname: results[1][0].nickname, userToken: accessToken};
         }
         else {
-          data = {accessToken};
+          data = {adminToken: accessToken};
         }
         res.json({"code": 0, "msg": "登录成功", "data": data});
       }

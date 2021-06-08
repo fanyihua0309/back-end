@@ -4,7 +4,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-// const authenticateJWT = require('./auth');
 
 const userRouter = require('./routes/user');
 const signRouter = require('./routes/sign');
@@ -22,7 +21,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use(authenticateJWT);
 
 // 设置实现 CORS 
 app.use((req, res, next) => {
