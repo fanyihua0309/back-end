@@ -4,16 +4,17 @@ var express = require('express');
 var router = express.Router();
 const pool = require('../database/pool');
 const moment = require('moment');
+const authenticateJWT = require('../authenticateJWT');
 
 
 // 获取所有电影信息 get 请求接口
-router.get('/:user_id', function(req, res, next) {
+router.get('/:user_id', authenticateJWT, function(req, res, next) {
   const user_id = req.params.user_id;
 
   // 第 1 条 sql 语句是从视图 moviesall 中查询电影相关的所有信息
   // 第 2、3 条 sql 语句是查询当前用户是否标记看过/喜欢/评分
   const sql = `
-               SELECT * FROM moviesall
+               SELECT * FROM moviesall;
 
                SELECT movie_id FROM userlike 
                WHERE user_id=${user_id};
@@ -61,7 +62,7 @@ router.get('/:user_id', function(req, res, next) {
 })
 
 // 搜索电影信息 post 请求接口
-router.post('/search', function(req, res, next) {
+router.post('/search', authenticateJWT, function(req, res, next) {
   const { user_id } = req.body;
   let { name, date, area, director, starring, type } = req.body.movie;
   // 用户并不是每个字段都键入值进行搜索，如果对应字段没有值设为空字符串
@@ -121,7 +122,7 @@ router.post('/search', function(req, res, next) {
 })
 
 // 获取所有电影信息并按指定的字段升序或降序排序 post 请求接口
-router.post('/sort', function(req, res, next) {
+router.post('/sort', authenticateJWT, function(req, res, next) {
   const { user_id, orderName, type } = req.body;
   const sql = `
               SELECT id, name, date, area, director, starring, type, likeTotal, seeTotal, rateAvg FROM movies,movieslike, moviessee
@@ -174,7 +175,7 @@ router.post('/sort', function(req, res, next) {
 })
 
 // 用户标记喜欢/取消喜欢的 post 请求接口
-router.post('/like', function(req, res, next) {
+router.post('/like', authenticateJWT, function(req, res, next) {
   const { user_id, movie_id, like } = req.body;
   const createTime = moment().format("YYYY-MM-DD HH:mm:ss"); //当前时间
   let sql;
@@ -200,7 +201,7 @@ router.post('/like', function(req, res, next) {
 })
 
 // 用户标记看过并给电影评分的 post 请求接口
-router.post('/see', function(req, res, next) {
+router.post('/see', authenticateJWT, function(req, res, next) {
   const { user_id, movie_id, see, rate } = req.body;
   const createTime = moment().format("YYYY-MM-DD HH:mm:ss"); //当前时间
   const sql = `INSERT INTO usersee(user_id, movie_id, rate, create_time)
@@ -218,7 +219,7 @@ router.post('/see', function(req, res, next) {
 })
 
 // 用户更新电影评分的 patch 请求接口
-router.patch('/see/rate', function(req, res, next) {
+router.patch('/see/rate', authenticateJWT, function(req, res, next) {
   const { user_id, movie_id, rate } = req.body;
   const sql = `UPDATE usersee
                SET rate=${rate}
@@ -236,7 +237,7 @@ router.patch('/see/rate', function(req, res, next) {
 })
 
 // 获取指定 id 的用户标记电影喜欢历史记录 get 请求接口
-router.get('/mark/like/:user_id', function(req, res, next) {
+router.get('/mark/like/:user_id', authenticateJWT, function(req, res, next) {
   const user_id = req.params.user_id;
   const sql = `SELECT movie_id, create_time FROM userlike
                WHERE user_id=${user_id}
@@ -270,7 +271,7 @@ router.get('/mark/like/:user_id', function(req, res, next) {
 }) 
 
 // 获取指定 id 的用户标记电影看过历史记录 get 请求接口
-router.get('/mark/see/:user_id', function(req, res, next) {
+router.get('/mark/see/:user_id', authenticateJWT, function(req, res, next) {
   const user_id = req.params.user_id;
   const sql = `SELECT movie_id, rate, create_time FROM usersee
                WHERE user_id=${user_id}
@@ -304,7 +305,7 @@ router.get('/mark/see/:user_id', function(req, res, next) {
 }) 
 
 // 获取指定 id 的用户信息 get 请求接口
-router.get('/info/:user_id', function(req, res, next) {
+router.get('/info/:user_id', authenticateJWT, function(req, res, next) {
   const user_id = req.params.user_id;
   const sql = `SELECT * FROM users
                WHERE id=${user_id}`;
@@ -321,7 +322,7 @@ router.get('/info/:user_id', function(req, res, next) {
 }) 
 
 // 更新指定 id 的用户信息 patch 请求接口
-router.patch('/info', function(req, res, next) {
+router.patch('/info', authenticateJWT, function(req, res, next) {
   const {id, nickname, mobile, email} = req.body;
   const sql = `UPDATE users
                SET nickname='${nickname}', mobile='${mobile}', email='${email}'
@@ -339,7 +340,7 @@ router.patch('/info', function(req, res, next) {
 }) 
 
 // 更新指定 id 的用户登录密码 patch 请求接口
-router.patch('/info/password', function(req, res, next) {
+router.patch('/info/password', authenticateJWT, function(req, res, next) {
   const {id, password, newPassword } = req.body;
   const sql = `SELECT * FROM users
                WHERE id=${id} AND password='${password}';

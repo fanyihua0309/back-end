@@ -3,10 +3,11 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../database/pool');
+const authenticateJWT = require('../authenticateJWT');
 
 
 // 获取所有电影信息 get 请求接口
-router.get('/', function(req, res, next) {
+router.get('/', authenticateJWT, function(req, res, next) {
   const sql = `SELECT * FROM moviesall`;
 
   pool.query(sql, function(error, results, fields) {
@@ -21,7 +22,7 @@ router.get('/', function(req, res, next) {
 })
 
 // 新增电影信息 post 请求接口
-router.post('/add', function(req, res, next) {
+router.post('/add', authenticateJWT, function(req, res, next) {
   const { name, date, area, director, starring, type } = req.body.movie;
   const sql = `INSERT INTO movies(name, date, area, director, starring, type)
                VALUES('${name}', '${date}', '${area}', '${director}', '${starring}', '${type}')`;
@@ -43,7 +44,7 @@ router.post('/add', function(req, res, next) {
 })
 
 // 删除指定 id 集合的电影信息 delete 请求接口
-router.delete('/delete/:idList', function(req, res, next) {
+router.delete('/delete/:idList', authenticateJWT, function(req, res, next) {
   const idList = req.params.idList;
   const sql = `DELETE FROM movies
                WHERE id IN(${idList})`;
@@ -60,7 +61,7 @@ router.delete('/delete/:idList', function(req, res, next) {
 })
 
 // 编辑电影信息 patch 请求接口
-router.patch('/edit', function(req, res, next) {
+router.patch('/edit', authenticateJWT, function(req, res, next) {
   const { id, name, date, area, director, starring, type } = req.body.movie;
   const sql = `UPDATE movies
                SET name='${name}', date='${date}', area='${area}', director='${director}', starring='${starring}', type='${type}'
@@ -78,7 +79,7 @@ router.patch('/edit', function(req, res, next) {
 })
 
 // 搜索电影信息 post 请求接口
-router.post('/search', function(req, res, next) {
+router.post('/search', authenticateJWT, function(req, res, next) {
   let { name, date, area, director, starring, type } = req.body.movie;
   // 用户并不是每个字段都键入值进行搜索，如果对应字段没有值设为空字符串
   name = name || '';
@@ -103,7 +104,7 @@ router.post('/search', function(req, res, next) {
 })
 
 // 获取所有电影信息并按指定的字段升序或降序排序 post 请求接口
-router.post('/sort', function(req, res, next) {
+router.post('/sort', authenticateJWT, function(req, res, next) {
   const { orderName, type } = req.body;
   const sql = `
               SELECT id, name, date, area, director, starring, type, likeTotal, seeTotal, rateAvg FROM movies,movieslike, moviessee
