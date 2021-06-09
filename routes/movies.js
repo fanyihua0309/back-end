@@ -122,5 +122,22 @@ router.post('/sort', authenticateJWT, function(req, res, next) {
   })
 })
 
+// 获取热门推荐电影信息 get 请求接口
+router.get('/recomend', authenticateJWT, function(req, res, next) {
+  const sql = `SELECT * FROM moviesall 
+               ORDER BY likeTotal+seeTotal DESC
+               LIMIT 5`;
+
+  pool.query(sql, function(error, results, fields) {
+    if(error) {
+      console.log(error);
+      res.json({"code": -1, "msg": "获取热门推荐电影信息失败", "err": "存在错误获取热门推荐电影信息失败！"});
+    }
+    else {
+      res.json({"code": 0, "msg": "获取热门推荐电影信息成功", "data": results});
+    }
+  })
+})
+
 
 module.exports = router;

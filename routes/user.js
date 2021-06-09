@@ -257,13 +257,13 @@ router.get('/mark/like/:user_id', authenticateJWT, function(req, res, next) {
     else {
       let data = results[0];
       const movies = results[1];
-      for(let i = 0; i < data.length; i++) {
-        data[i].name = movies[i].name;
-        data[i].date = movies[i].date;
-        data[i].area = movies[i].area;
-        data[i].director = movies[i].director;
-        data[i].starring = movies[i].starring;
-        data[i].type = movies[i].type;
+      for(let i = 0, j = data.length - 1; i < data.length && j >= 0; i++, j--) {
+        data[i].name = movies[j].name;
+        data[i].date = movies[j].date;
+        data[i].area = movies[j].area;
+        data[i].director = movies[j].director;
+        data[i].starring = movies[j].starring;
+        data[i].type = movies[j].type;
       }
       res.json({"code": 0, "msg": "获取用户标记喜欢记录成功", "data": data});
     }
@@ -281,7 +281,7 @@ router.get('/mark/see/:user_id', authenticateJWT, function(req, res, next) {
                WHERE id IN (
                SELECT movie_id FROM usersee
                WHERE user_id=${user_id}
-               ORDER BY create_time DESC)`;
+               ORDER BY create_time DESC);`;
 
   pool.query(sql, function(error, results, fields) {
     if(error) {
@@ -291,13 +291,13 @@ router.get('/mark/see/:user_id', authenticateJWT, function(req, res, next) {
     else {
       let data = results[0];
       const movies = results[1];
-      for(let i = 0; i < data.length; i++) {
-        data[i].name = movies[i].name;
-        data[i].date = movies[i].date;
-        data[i].area = movies[i].area;
-        data[i].director = movies[i].director;
-        data[i].starring = movies[i].starring;
-        data[i].type = movies[i].type;
+      for(let i = 0, j = data.length - 1; i < data.length && j >= 0; i++, j--) {
+        data[i].name = movies[j].name;
+        data[i].date = movies[j].date;
+        data[i].area = movies[j].area;
+        data[i].director = movies[j].director;
+        data[i].starring = movies[j].starring;
+        data[i].type = movies[j].type;
       }
       res.json({"code": 0, "msg": "获取用户标记喜欢记录成功", "data": data});
     }
