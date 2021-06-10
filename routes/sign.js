@@ -37,7 +37,7 @@ router.post('/in', function(req, res, next) {
   const tableName = role === 'admin' ? 'admin' : 'users';
 
   const accessTokenSecret = auth.accessTokenSecret;
-  const accessToken = jwt.sign({ username: mobile, role: role }, accessTokenSecret);
+  const accessToken = jwt.sign({ username: mobile, role: role }, accessTokenSecret, { expiresIn: '10d' });
 
   const sql = `SELECT * FROM ${tableName}
                WHERE mobile='${mobile}';
